@@ -5,6 +5,7 @@ import {AboutComponent} from "./about/about.component";
 import {CourseComponent} from "./course/course.component";
 //import {CourseResolver} from "./services/course.resolver";
 import {LoginComponent} from './login/login.component';
+import { CourseResolver } from './services/course.resolver';
 
 const routes: Routes = [
     {
@@ -22,10 +23,10 @@ const routes: Routes = [
     },
     {
         path: 'courses/:courseUrl',
-        component: CourseComponent
-        // resolve: {
-        //     course: CourseResolver
-        // }
+        component: CourseComponent,
+        resolve: {
+            course: CourseResolver
+        }
     },
     {
         path: "**",
