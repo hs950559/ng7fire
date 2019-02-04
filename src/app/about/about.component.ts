@@ -1,13 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { environment } from '../../environments/environment';
 import {AngularFirestore} from '@angular/fire/firestore';
-import * as firebase from 'firebase/app';
-import 'firebase/firestore';
 import { Course } from '../model/course';
-import { of } from 'rxjs';
 
-firebase.initializeApp(environment.firebaseConfig);
-const db = firebase.firestore();
 
 @Component({
   selector: 'app-about',
@@ -15,27 +9,26 @@ const db = firebase.firestore();
   styleUrls: ['./about.component.scss']
 })
 export class AboutComponent implements OnInit {
-
+  output;
   constructor(private db: AngularFirestore) { 
-
-
-
-    
   }
 
   ngOnInit() {
   }
 
-  batchUpdate() {
-    // Batch Update
-    const c1 = this.db.doc(`courses/AntNnpolMeY08SiNXi0s`).ref;
-    const c2 = this.db.doc(`courses/91dg8ZgunWInkORHd2yK`).ref;
+  async runTransaction() {
+    const newCounter = await this.db.firestore.runTransaction(async transaction => {
+      console.log('Runnig Transaction.....');
+      const courseRef = this.db.doc('/courses/AntNnpolMeY08SiNXi0s').ref;
 
-    const batch = this.db.firestore.batch();
-    batch.update(c1, {titles: {description: 'T1'}});
-    batch.update(c2, {titles: {description: 'T2'}});
-
-    batch.commit();
+      const snap = await transaction.get(courseRef);
+      const course = <Course>snap.data();
+      const lessonsCount = course.lessonsCount + 1;
+      transaction.update(courseRef, {lessonsCount});
+      return lessonsCount;
+    });
+    this.output = newCounter;
+    console.log('result lesson count ', newCounter);
   }
 
 }
